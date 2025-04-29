@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from datetime import date
+from datetime import date, datetime, timedelta
 import time
 
 class Kalendars:
@@ -110,6 +110,27 @@ class Mobilly:
 def current_milli_time():
     return round(time.time() * 1000)
 dateorigin = date.today().strftime('%Y-%m-%d')
+def get_today_tomorrow_classes(events):
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    tomorrow_start = today_start + timedelta(days=1)
+    day_after_start = tomorrow_start + timedelta(days=1)
+
+    today_ms = int(today_start.timestamp() * 1000)
+    tomorrow_ms = int(tomorrow_start.timestamp() * 1000)
+    day_after_ms = int(day_after_start.timestamp() * 1000)
+
+    today_classes = []
+    tomorrow_classes = []
+
+    for event in events:
+        event_time = int(event)
+        if today_ms <= event_time < tomorrow_ms:
+            today_classes.append(event)
+        elif tomorrow_ms <= event_time < day_after_ms:
+            tomorrow_classes.append(event)
+
+    return today_classes, tomorrow_classes
+
 
 kalendars = Kalendars()
 izv = kalendars.chooseSemester()
@@ -120,30 +141,51 @@ group = kalendars.chooseGroup(izv, progId, course)
 list = kalendars.getSemEventList(group)
 dates = kalendars.getDates(list)
 temp = []
-for x in dates:
-    if x > current_milli_time():
-        temp.append(x)
-    else:
-        pass
 
+today_classes, tomorrow_classes = get_today_tomorrow_classes(dates)
+if not today_classes:
+    dateorigins = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    dateorigin = dateorigins + timedelta(days=1)
+    dateorigin = dateorigin.strftime('%Y-%m-%d')
+    for x in tomorrow_classes:
+        temp.append(x)
+    temp.sort()
+else:
+    for x in dates:
+        if x > current_milli_time() and x < int(time.time() * 1000 + 86400000): # bigger than current day, smaller than next day
+            temp.append(x)
+        else:
+            pass
+    temp.sort()
 
 mobilly = Mobilly()
 for x in mobilly.getStations()['stations']:
     print(x['letter_code'] + " : " + x['station_name'])
 froms = input("Izvelies sakuma staciju: ")
-trains = mobilly.getTrains(froms, "RIG", date.today().strftime('%Y-%m-%d'))
+
+trains = mobilly.getTrains(froms, "RIG", dateorigin)
 
 
 
 # need to sort todays lekcijas times aswell
+print("Dates:\n\n")
+for x in temp:
+    print(x)
+print("Current: " + str(current_milli_time()) + "\n")
+print("Day after: " + str(int(time.time() * 1000 + 86400000)) +"\n")
 temp2 = []
 i = 0
 for x in trains['scheduled_route_costs']:
-    if int(x['departure_datetime'])*1000 > current_milli_time() and i<3:
+    if int(x['departure_datetime'])*1000 > current_milli_time():
         temp2.append(x)
         i+=1
-for x in temp:
-    print(x)
-print("\n\n")
+temp3 = []
 for x in temp2:
     print(x)
+    if int(x['departure_datetime']) * 1000 > (temp[0] - 3 * 3600 * 1000) and int(x['departure_datetime']) * 1000 < temp[0]:
+        
+        temp3.append(x)
+print("Departures: ")
+for x in temp3:
+    print(x)
+print(i)

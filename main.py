@@ -68,10 +68,18 @@ class Kalendars:
         })
         js =  r.json()
         return js
-    def getDates(self, list):
+
+    def getDates(self, event_list):
         temp = []
-        for x in list:
-            temp.append(x['eventDate'])
+        for x in event_list:
+            try:
+                if 'eventDate' in x and 'customStart' in x:
+                    event_date = datetime.fromtimestamp(int(x['eventDate']) / 1000)
+                    cs = x['customStart']
+                    full_datetime = event_date.replace(hour=cs['hour'], minute=cs['minute'], second=cs['second'])
+                    temp.append(full_datetime)
+            except Exception as e:
+                print(f"Kļuda: {e}")
         return temp
 
 class Mobilly:
@@ -123,7 +131,7 @@ def get_today_tomorrow_classes(events):
     tomorrow_classes = []
 
     for event in events:
-        event_time = int(event)
+        event_time = int(event.timestamp() * 1000)
         if today_ms <= event_time < tomorrow_ms:
             today_classes.append(event)
         elif tomorrow_ms <= event_time < day_after_ms:
@@ -141,6 +149,7 @@ group = kalendars.chooseGroup(izv, progId, course)
 list = kalendars.getSemEventList(group)
 dates = kalendars.getDates(list)
 temp = []
+print(dates)
 
 today_classes, tomorrow_classes = get_today_tomorrow_classes(dates)
 if not today_classes:
@@ -150,13 +159,17 @@ if not today_classes:
     for x in tomorrow_classes:
         temp.append(x)
     temp.sort()
+    
+
 else:
     for x in dates:
-        if x > current_milli_time() and x < int(time.time() * 1000 + 86400000): # bigger than current day, smaller than next day
+        
+        if int(x.timestamp() * 1000) > current_milli_time() and int(x.timestamp() * 1000) < int(time.time() * 1000 + 86400000): # bigger than current day, smaller than next day
             temp.append(x)
         else:
             pass
     temp.sort()
+
 
 mobilly = Mobilly()
 for x in mobilly.getStations()['stations']:
@@ -180,12 +193,17 @@ for x in trains['scheduled_route_costs']:
         temp2.append(x)
         i+=1
 temp3 = []
+
 for x in temp2:
-    print(x)
-    if int(x['departure_datetime']) * 1000 > (temp[0] - 3 * 3600 * 1000) and int(x['departure_datetime']) * 1000 < temp[0]:
-        
+    dep_time = datetime.fromtimestamp(int(x['departure_datetime']))
+    arr_time = datetime.fromtimestamp(int(x['arrival_datetime']))
+    arrival_ms = int(x['arrival_datetime']) * 1000
+    lekcija_ms = int(temp[0].timestamp() * 1000)
+    if lekcija_ms - 2 * 3600 * 1000 <= arrival_ms <= lekcija_ms - 45 * 60 * 1000:
         temp3.append(x)
-print("Departures: ")
+
+print("Departures:")
 for x in temp3:
-    print(x)
+        print (x)
+        print(f"Vilciens {x['train_no']} | {x['route_name']} | Izbraukšana: {dep_time.strftime('%Y-%m-%d %H:%M')} | Ierašanās: {arr_time.strftime('%H:%M')}")
 print(i)

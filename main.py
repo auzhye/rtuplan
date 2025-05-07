@@ -41,33 +41,42 @@ class Kalendars:
         izv = input('Izvelies kursu: ')
         return izv
     def chooseGroup(self, izvele, progId, course):
-        r = requests.post(self.URL + "/findGroupByCourseId", data={
-            'semesterId':izvele,
-            'programId':progId,
-            'courseId':course
-        })
-        js =  r.json()
-        for x in js:
-            print(str(x['semesterProgramId']) + " : "+ x['group'])
-        izv = input('Izvelies grupu: ')
-        return izv
+        try:
+            r = requests.post(self.URL + "/findGroupByCourseId", data={
+                'semesterId':izvele,
+                'programId':progId,
+                'courseId':course
+            })
+            js =  r.json()
+            for x in js:
+                print(str(x['semesterProgramId']) + " : "+ x['group'])
+            izv = input('Izvelies grupu: ')
+            return izv
+        except Exception as e:
+            return f"Error: {e}"
     def getSemSubj(self, groupId):
-        r = requests.post(self.URL + "/getSemProgSubjects", data={
-            'semesterProgramId':groupId,
-        })
-        js =  r.json()
-        return js
+        try:
+            r = requests.post(self.URL + "/getSemProgSubjects", data={
+                'semesterProgramId':groupId,
+            })
+            js =  r.json()
+            return js
+        except Exception as e:
+            return f"Error: {e}"
     def getSemEventList(self, groupId):
         month = date.today().month
         print(month)
         year = date.today().year
-        r = requests.post(self.URL + "/getSemesterProgEventList", data={
-            'semesterProgramId':groupId,
-            'year':year,
-            'month':month
-        })
-        js =  r.json()
-        return js
+        try:
+            r = requests.post(self.URL + "/getSemesterProgEventList", data={
+                'semesterProgramId':groupId,
+                'year':year,
+                'month':month
+            })
+            js =  r.json()
+            return js
+        except Exception as e:
+            return f"Error: {e}"
 
     def getDates(self, event_list):
         temp = []
@@ -204,6 +213,7 @@ for x in temp2:
 
 print("Departures:")
 for x in temp3:
-        print (x)
+        dep_time = datetime.fromtimestamp(int(x['departure_datetime']))
+        arr_time = datetime.fromtimestamp(int(x['arrival_datetime']))
         print(f"Vilciens {x['train_no']} | {x['route_name']} | Izbraukšana: {dep_time.strftime('%Y-%m-%d %H:%M')} | Ierašanās: {arr_time.strftime('%H:%M')}")
 print(i)

@@ -1,1 +1,10 @@
 # rtuplan
+### RTU Plan uzdevums
+Daudziem RTU studientiem ir vajadzība izmantot publisko transportu, t.sk. vilcienu, lai tiktu uz augstskolu. Šis process aizņem laiku, taču mēs izvēlējāmies automatizēt to procesa dalu, kura atkārtojās visbiežāk - **RTU nodarbību grafika apskati** un **vilciena reisu atrašanu pēc nodarbību laikiem**. Šis automatizācijas process noder tiem, kuriem ir jābrauc no pilsētas uz Rīgu ar vilcienu, lai nokļūtu uz RTU.
+#### Automatizācijas process
+1. Tiek definētas 2 klases - RTU grafika un Mobilly. Tām piešķir metodes, ar kuru palīdzību var strādāt ar gan [nodarbibas.rtu.lv](https://nodarbibas.rtu.lv/), gan [mobilly.lv](https://mobilly.lv/) mājaslapām. Izmantojot __requests__ bibliotēku, ir iespējams veikt pieprasījumus mājaslapām, kas atgriež mums nepieciešamos datus. Ar __BeatifulSoup__ bibliotēku šos datus var padarīt vieglāk lasāmus lietotājiem un vieglāk izmantojamus mums. Ar šo bibliotēku palīdzību izpildās lielākā daļa metožu.
+2. Klases "Kalendars" metodes ar prefiksu "choose" ļauj lietotājam izvēlēties izvēles no nodarbību saraksta - semestri, programmu, kursu un grupu. Metodes ar prefiksu "get" saņem no grafika semestra ilgumu, programmas, nodarbības un to laikus un datumus. Šīs visas funkcijas tiek izpildītas savā secībā, lai beigās saņemtu laikus, kad notiek nodarbības, __milisekundēs__. Šie laiki tiek kategorizēti pēc konkrēti izrēķināta laika - šodienas un rītdienas nodarbībās -, lai tiktu meklēti pareizie vilciena reisi. To visu izdara ar __datetime__ un __time__ bibliotēkām, lai varētu pārvērst datumus laikos.
+3. Klasei "Mobilly" ir divas metodes - "getStations()" un "getTrains()". getStations atgriež visas vilciena stacijas Latvijā, bet getTrains atgriež reisus no iegūtās stacijas līdz Rīgai. Kad lietotājs izvēlās stacijas pilsētu, tiek atlasīti reisi atkarībā no tā, vai nodarbības notiek šodien vai rītdien. Beigās salīdzina, kad reisi pienāk Rīgā (2h pirms izbraukšanas un 45min pirms lekcijas), lai iegūtu pareizos braucienus, un izvada tos.
+### Darba autori
+1. Ralfs Artuss Verveiko, RDBD0 8 (auzhye)
+2. Jelizaveta Maksimova, RDBD0 8 (JelizavetaM)

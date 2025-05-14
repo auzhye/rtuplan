@@ -206,12 +206,16 @@ for x in temp2:
     dep_time = datetime.fromtimestamp(int(x['departure_datetime']))
     arr_time = datetime.fromtimestamp(int(x['arrival_datetime']))
     arrival_ms = int(x['arrival_datetime']) * 1000
-    lekcija_ms = int(temp[0].timestamp() * 1000)
-    if lekcija_ms - 2 * 3600 * 1000 <= arrival_ms <= lekcija_ms - 45 * 60 * 1000:
-        temp3.append(x)
-
-print("Departures:")
-for x in temp3:
-        dep_time = datetime.fromtimestamp(int(x['departure_datetime']))
-        arr_time = datetime.fromtimestamp(int(x['arrival_datetime']))
-        print(f"Vilciens {x['train_no']} | {x['route_name']} | Izbraukšana: {dep_time.strftime('%Y-%m-%d %H:%M')} | Ierašanās: {arr_time.strftime('%H:%M')}")
+    if len(temp) == 0:
+        print("Šodien un rītdien lekciju nav")
+        break
+    else:
+        lekcija_ms = int(temp[0].timestamp() * 1000)
+        if lekcija_ms - 2 * 3600 * 1000 <= arrival_ms <= lekcija_ms - 45 * 60 * 1000:
+            temp3.append(x)
+if len(temp) != 0:
+    print("Departures:")
+    for x in temp3:
+            dep_time = datetime.fromtimestamp(int(x['departure_datetime']))
+            arr_time = datetime.fromtimestamp(int(x['arrival_datetime']))
+            print(f"Vilciens {x['train_no']} | {x['route_name']} | Izbraukšana: {dep_time.strftime('%Y-%m-%d %H:%M')} | Ierašanās: {arr_time.strftime('%H:%M')}")

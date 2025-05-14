@@ -158,7 +158,6 @@ group = kalendars.chooseGroup(izv, progId, course)
 list = kalendars.getSemEventList(group)
 dates = kalendars.getDates(list)
 temp = []
-print(dates)
 
 today_classes, tomorrow_classes = get_today_tomorrow_classes(dates)
 if not today_classes:
@@ -190,11 +189,11 @@ trains = mobilly.getTrains(froms, "RIG", dateorigin)
 
 
 # need to sort todays lekcijas times aswell
-print("Dates:\n\n")
-for x in temp:
-    print(x)
-print("Current: " + str(current_milli_time()) + "\n")
-print("Day after: " + str(int(time.time() * 1000 + 86400000)) +"\n")
+#print("Dates:\n\n")
+#for x in temp:
+#    print(x)
+#print("Current: " + str(current_milli_time()) + "\n")
+#print("Day after: " + str(int(time.time() * 1000 + 86400000)) +"\n")
 temp2 = []
 i = 0
 for x in trains['scheduled_route_costs']:
@@ -216,4 +215,3 @@ for x in temp3:
         dep_time = datetime.fromtimestamp(int(x['departure_datetime']))
         arr_time = datetime.fromtimestamp(int(x['arrival_datetime']))
         print(f"Vilciens {x['train_no']} | {x['route_name']} | Izbraukšana: {dep_time.strftime('%Y-%m-%d %H:%M')} | Ierašanās: {arr_time.strftime('%H:%M')}")
-print(i)
